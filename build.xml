@@ -1,0 +1,126 @@
+<!--
+ * The MIT License
+ * Copyright (c) 2010 Tad Glines
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+-->
+
+<project name="socketio-java" default="dist">
+	<description>J2EE Servlet based Socket.IO Server Implementation</description>
+
+	<property file="version.properties"/>
+
+	<path id="classpath">
+		<fileset dir="WebContent/WEB-INF/lib">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="C:/Software/gwt-2.0.4">
+			<include name="gwt-dev.jar"/>
+			<include name="gwt-user.jar"/>
+		</fileset>
+	</path>
+
+	<target name="init">
+		<mkdir dir="dist"/>
+		<mkdir dir="build"/>
+		<mkdir dir="build/classes"/>
+	</target>
+
+	<target name="clean">
+		<delete dir="dist"/>
+		<delete dir="build"/>
+	</target>
+
+	<target name="compile" depends="init">
+		<javac sourcepath="" srcdir="src" destdir="build/classes" debug="on"
+	        target="1.6">
+			<include name="**/*.java"/>
+			<classpath>
+				<path refid="classpath"/>
+			</classpath>
+		</javac>
+	    <copy todir="build/classes">
+			<fileset dir="src">
+				<include name="**/*.js"/>
+				<include name="**/*.swf"/>
+				<include name="**/*.html"/>
+			</fileset>
+	    </copy>
+	</target>
+
+	<target name="dist" depends="compile">
+		<jar destfile="dist/socketio-java-${socketio-java.version}.jar">
+			<fileset dir="build/classes"/>
+			<manifest>
+		        <attribute name="Implementation-Vendor" value="http://code.google.com/p/socketio-java"/>
+		        <attribute name="Implementation-Title" value="socketio-java"/>
+		        <attribute name="Implementation-Version" value="${socketio-java.version}"/>
+			</manifest>
+	    </jar>
+
+		<jar destfile="dist/socketio-java-src-${socketio-java.version}.jar">
+			<fileset dir="src">
+				<exclude name="**/*.js"/>
+				<exclude name="**/*.swf"/>
+				<exclude name="**/*.html"/>
+			</fileset>
+			<manifest>
+		        <attribute name="Implementation-Vendor" value="http://code.google.com/p/socketio-java"/>
+		        <attribute name="Implementation-Title" value="socketio-java Source"/>
+		        <attribute name="Implementation-Version" value="${socketio-java.version}"/>
+			</manifest>
+	    </jar>
+	</target>
+	
+	<target name="run-chat">
+		<java fork="true" classname="com.glines.socketio.examples.chat.ChatServer">
+			<jvmarg value="-Dorg.eclipse.jetty.util.log.DEBUG=true"/>
+			<arg value="0.0.0.0"/>
+			<arg value="8080"/>
+			<classpath>
+				<pathelement location="dist/socketio-java-${socketio-java.version}.jar"/>
+				<path refid="classpath"/>
+			</classpath>
+		</java>
+	</target>
+
+	<target name="run-echo">
+		<java fork="true" classname="com.glines.socketio.examples.echo.EchoServer">
+			<jvmarg value="-Dorg.eclipse.jetty.util.log.DEBUG=true"/>
+			<arg value="localhost"/>
+			<arg value="8080"/>
+			<classpath>
+				<pathelement location="dist/socketio-java-${socketio-java.version}.jar"/>
+				<path refid="classpath"/>
+			</classpath>
+		</java>
+	</target>
+
+	<target name="run-broadcast">
+		<java fork="true" classname="com.glines.socketio.examples.broadcast.BroadcastServer">
+			<jvmarg value="-Dorg.eclipse.jetty.util.log.DEBUG=true"/>
+			<arg value="localhost"/>
+			<arg value="8080"/>
+			<classpath>
+				<pathelement location="dist/socketio-java-${socketio-java.version}.jar"/>
+				<path refid="classpath"/>
+			</classpath>
+		</java>
+	</target>
+</project>
